@@ -1,0 +1,23 @@
+name: A check is wrong
+description: A finding fired on code that is fine, or missed something the rule claims to see.
+title: "[check] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: saw
+    attributes:
+      label: What happened
+      description: Do not paste a live secret. Redact it the way Veladora does (first four, last four).
+    validations:
+      required: true
+  - type: textarea
+    id: wanted
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: input
+    id: rule
+    attributes:
+      label: Rule id, if you know it
+      placeholder: assigned-secret

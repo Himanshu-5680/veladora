@@ -1,0 +1,16 @@
+{
+  "name": "veladora",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A local altar for inherited code. Rules in the browser, Gemma 3 270M when you light it.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check js/app.js && node --check js/analyzer.js && node --check js/worker.js && node --test",
+    "start": "npx --yes serve -l 4173 ."
+  }
+}

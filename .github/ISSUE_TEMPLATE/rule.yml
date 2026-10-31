@@ -1,0 +1,24 @@
+name: Add a check
+description: Propose a new candle. Bring a fixture that should light, and one that should not.
+title: "[rule] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: looks
+    attributes:
+      label: What should it notice
+    validations:
+      required: true
+  - type: textarea
+    id: fixture
+    attributes:
+      label: A tiny fixture, with any secret redacted
+    validations:
+      required: true
+  - type: textarea
+    id: quiet
+    attributes:
+      label: A lookalike that must stay dark
+      description: Placeholder passwords, test keys, and comments that mention the word eval should not become findings.
+    validations:
+      required: true

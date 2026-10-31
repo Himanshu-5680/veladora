@@ -1,0 +1,10 @@
+{
+  "name": "Veladora",
+  "short_name": "Veladora",
+  "description": "A local altar for inherited code. The scan stays in the browser.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#12110e",
+  "theme_color": "#12110e",
+  "icons": [{ "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

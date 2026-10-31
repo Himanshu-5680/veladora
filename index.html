@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<script>
+try {
+  var saved = localStorage.getItem("veladora-theme");
+  if (saved !== "light" && saved !== "dark") saved = "dark";
+  document.documentElement.setAttribute("data-theme", saved);
+} catch (e) { document.documentElement.setAttribute("data-theme", "dark"); }
+</script>
+<title>Veladora — check old code in your browser</title>
+<meta name="description" content="Drop a folder. Veladora finds secrets and risky code in your browser. Nothing is uploaded.">
+<meta property="og:title" content="Veladora — check old code in your browser">
+<meta property="og:description" content="A private check for code other people left you. The model runs in your browser. Your files stay here.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#12110e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/app.css?v=5">
+</head>
+<body>
+<a class="skip" href="#audit">Skip to the check</a>
+
+<div class="banner" role="status">
+  <div class="w banner-row">
+    <span class="badge ink">Local</span>
+    <span>Your files stay in this tab. Downloads hide secrets. The model runs here after one download.</span>
+    <span class="banner-side">A first look, not a security certificate.</span>
+  </div>
+</div>
+
+<header class="top">
+  <div class="w top-row">
+    <a class="logo" href="#top"><span class="avatar sm" aria-hidden="true">V</span> Veladora</a>
+    <nav aria-label="Sections">
+      <a href="#audit">Check</a>
+      <a href="#seance">Model</a>
+      <a href="#altar">Memory</a>
+      <a href="#timeline">History</a>
+      <a href="#notes">About</a>
+      <button id="theme" class="switch" type="button" aria-pressed="true" aria-label="Toggle theme">
+        <span class="switch-knob" aria-hidden="true"></span>
+        <span class="switch-label">Theme</span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="w hero-grid">
+      <div>
+        <p class="crumb">Veladora <span>/</span> Local check <span>/</span> Old code</p>
+        <h1>Check the code you were <span class="mark">left.</span></h1>
+        <p class="lede">Drop a folder. Veladora reads it in this browser, lists the problems, and can ask Gemma 3 270M to explain only that list.</p>
+        <div class="row">
+          <a class="btn" href="#audit">Open the check</a>
+          <a class="btn alt" href="#notes">Why it stays local</a>
+        </div>
+        <div class="badge-row">
+          <span class="badge">No upload</span>
+          <span class="badge">Secrets hidden</span>
+          <span class="badge">Gemma 3 270M</span>
+          <span class="badge">MIT</span>
+        </div>
+      </div>
+
+      <div class="window" id="drop">
+        <div class="window-bar">
+          <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span>veladora · this tab</span>
+          <span class="badge">local</span>
+        </div>
+        <div class="window-body">
+          <p class="lab">Drop zone</p>
+          <strong>Drop a folder, or keep the sample.</strong>
+          <p id="source-label">Sample project is loaded. It is made up. It uses the public AWS example keys so you can see a warning.</p>
+          <div class="row">
+            <label class="filebtn">Choose folder<input id="dir-input" type="file" webkitdirectory multiple></label>
+            <label class="filebtn alt">Choose files<input id="file-input" type="file" multiple></label>
+            <button class="btn alt" id="use-sample" type="button">Restore sample</button>
+            <button class="btn danger" id="clear" type="button">Clear</button>
+          </div>
+          <p class="hint">Up to 200 text files, 350 KB each. Skips <kbd>node_modules</kbd>. Open with http or https. A <kbd>file://</kbd> tab will not work.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <p><b></b> Rules run first <b></b> Gemma reads a short list <b></b> Secrets stay on this screen <b></b> Works with no model <b></b> SmolLM2 backup <b></b> Markdown, JSON, CSV, GitHub issue <b></b> A memory for old code</p>
+      <p><b></b> Rules run first <b></b> Gemma reads a short list <b></b> Secrets stay on this screen <b></b> Works with no model <b></b> SmolLM2 backup <b></b> Markdown, JSON, CSV, GitHub issue <b></b> A memory for old code</p>
+    </div>
+  </div>
+
+  <section class="stats" aria-label="Score totals">
+    <div class="w stat-grid">
+      <article class="card stat">
+        <span class="lab">Score</span>
+        <b id="stat-score">–</b>
+        <span>out of 100</span>
+        <div class="progress" aria-hidden="true"><span id="score-bar"></span></div>
+      </article>
+      <article class="card stat">
+        <span class="lab">Files</span>
+        <b id="stat-files">–</b>
+        <span>in this folder</span>
+      </article>
+      <article class="card stat">
+        <span class="lab">High</span>
+        <b id="stat-high">–</b>
+        <span>fix these first</span>
+      </article>
+      <article class="card stat">
+        <span class="lab">Other</span>
+        <b id="stat-low">–</b>
+        <span>also look at these</span>
+      </article>
+    </div>
+  </section>
+
+  <div class="w workspace">
+    <div class="tabs" role="tablist" aria-label="Workspace">
+      <button type="button" role="tab" id="tab-audit" aria-selected="true" aria-controls="audit">Check</button>
+      <button type="button" role="tab" id="tab-seance" aria-selected="false" aria-controls="seance">Model</button>
+      <button type="button" role="tab" id="tab-altar" aria-selected="false" aria-controls="altar">Memory</button>
+      <button type="button" role="tab" id="tab-timeline" aria-selected="false" aria-controls="timeline">History</button>
+      <button type="button" role="tab" id="tab-notes" aria-selected="false" aria-controls="notes">About</button>
+    </div>
+
+    <section class="panel on" id="audit" role="tabpanel">
+      <header class="section-head">
+        <div>
+          <p class="lab">The checks</p>
+          <h2>What this folder still has</h2>
+        </div>
+      </header>
+      <div class="grid">
+        <aside class="card score">
+          <b id="score-num">–</b>
+          <span class="vigil" id="score-vigil">…</span>
+          <p id="score-line"></p>
+          <div class="sep"></div>
+          <div class="files" id="file-chips"></div>
+          <div class="row noprint">
+            <button class="btn" id="download-md" type="button">Markdown</button>
+            <button class="btn alt" id="download-json" type="button">JSON</button>
+            <button class="btn alt" id="download-csv" type="button">CSV</button>
+          </div>
+          <div class="row noprint">
+            <button class="btn alt" id="copy-issue" type="button">Copy GitHub issue</button>
+            <button class="btn neutral" id="reveal" type="button" aria-pressed="false">Show secrets here</button>
+          </div>
+          <label class="field" for="repo-input">GitHub repo, optional</label>
+          <input id="repo-input" type="text" autocomplete="off" placeholder="yourname/your-repo" spellcheck="false">
+          <p class="alert" id="reveal-note" hidden>Visible in this tab only. Downloads and the model prompt stay hidden.</p>
+        </aside>
+        <div>
+          <div class="filters" id="filters" role="group" aria-label="Filter issues"></div>
+          <div id="findings"></div>
+          <div id="notes-list"></div>
+        </div>
+      </div>
+
+      <details class="acc">
+        <summary>Add one file by pasting</summary>
+        <div class="acc-body">
+          <label class="field" for="paste-name">Filename</label>
+          <input id="paste-name" type="text" value="snippet.txt" spellcheck="false">
+          <label class="field" for="paste-text">Text</label>
+          <textarea id="paste-text" placeholder="Paste one file. It stays in this tab."></textarea>
+          <div class="row">
+            <button class="btn" id="add-paste" type="button">Add this file</button>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <section class="panel" id="seance" role="tabpanel" hidden>
+      <header class="section-head">
+        <div>
+          <p class="lab">Open model, this computer</p>
+          <h2>Ask the model. Give it only the short list.</h2>
+        </div>
+      </header>
+      <p class="lede">Gemma 3 270M does not see your files. It sees a short list with secrets hidden. If it repeats itself, the written summary stays.</p>
+      <div class="split">
+        <article class="card">
+          <p class="lab">Written summary</p>
+          <div class="stream" id="draft"></div>
+        </article>
+        <article class="card">
+          <p class="lab" id="model-status" aria-live="polite">No model loaded. The summary does not need one.</p>
+          <p class="note" id="model-rate"></p>
+          <div class="stream skeleton" id="model-output">Start Gemma if you want the list explained in plain words. The download happens once, in this browser.</div>
+          <div class="row noprint">
+            <button class="btn" id="light-gemma" type="button">Start Gemma 3 270M</button>
+            <button class="btn alt" id="light-small" type="button">Backup model · SmolLM2</button>
+            <button class="btn neutral" id="extinguish" type="button">Stop the model</button>
+            <button class="btn" id="ask-seance" type="button">Read the list</button>
+          </div>
+          <p class="hint">WebGPU. About 300 MB for Gemma, 120 MB for the backup model.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel" id="altar" role="tabpanel" hidden>
+      <header class="section-head">
+        <div>
+          <p class="lab">A memory, not a costume</p>
+          <h2>A card for a person, a language, or a decision</h2>
+        </div>
+      </header>
+      <p class="lede">A place for someone who is not here. Keep the note about the contract. Remove the key.</p>
+      <div class="split">
+        <form class="card" id="altar-form">
+          <label class="field" for="altar-name">Name</label>
+          <input id="altar-name" type="text" value="The 2019 holiday rate">
+          <label class="field" for="altar-years">Years, or a file</label>
+          <input id="altar-years" type="text" value="src/pay.js">
+          <label class="field" for="altar-loved">What they cared about</label>
+          <input id="altar-loved" type="text" value="a contract the code no longer matches">
+          <label class="field" for="altar-story">A true detail</label>
+          <textarea id="altar-story">Someone wrote the rate down in a comment because the next person would not have been in the room.</textarea>
+          <div class="row">
+            <button class="btn" id="paint-altar" type="button">Make the card</button>
+            <button class="btn alt" id="from-loudest" type="button">Use the biggest issue</button>
+            <button class="btn alt" id="ask-epitaph" type="button">Ask the model</button>
+            <button class="btn neutral" id="print-card" type="button">Print</button>
+          </div>
+        </form>
+        <article class="altar" id="altar-card">
+          <div class="candles" aria-hidden="true"><i></i><i></i><i></i></div>
+          <p class="lab">Memory</p>
+          <h3 id="altar-title">The 2019 holiday rate</h3>
+          <p id="altar-meta">src/pay.js</p>
+          <p id="altar-body"></p>
+          <div class="marigolds" aria-hidden="true"><b></b><b></b><b></b><b></b><b></b></div>
+        </article>
+      </div>
+
+      <div class="sep fat"></div>
+      <header class="section-head">
+        <div>
+          <p class="lab">Public record</p>
+          <h2>Old languages</h2>
+        </div>
+      </header>
+      <p class="lede">The short bio is fixed text, so a small model cannot invent a year. Paste some code and ask what it does.</p>
+      <div class="langs" id="lang-list"></div>
+      <div class="split">
+        <article class="card">
+          <p class="lab" id="lang-status">Choose a language</p>
+          <p id="lang-fact"></p>
+          <label class="field" for="lang-snippet">Snippet</label>
+          <textarea id="lang-snippet"></textarea>
+          <button class="btn" id="ask-lang" type="button">Ask this language</button>
+        </article>
+        <article class="card stream" id="lang-output">The answer stays in this tab.</article>
+      </div>
+    </section>
+
+    <section class="panel" id="timeline" role="tabpanel" hidden>
+      <header class="section-head">
+        <div>
+          <p class="lab">Names stay here</p>
+          <h2>Who kept this project going</h2>
+        </div>
+      </header>
+      <p class="lede">Paste a log. Veladora does not run git, and it does not send the names anywhere.</p>
+      <div class="card command"><code>git log --date=short --pretty=format:%h%x09%an%x09%ad%x09%s</code></div>
+      <label class="field" for="log-text">Log</label>
+      <textarea id="log-text" spellcheck="false"></textarea>
+      <div class="row">
+        <button class="btn" id="read-log" type="button">Read the log</button>
+        <button class="btn alt" id="sample-log" type="button">Load a sample log</button>
+      </div>
+      <div id="timeline-out"></div>
+    </section>
+
+    <section class="panel" id="notes" role="tabpanel" hidden>
+      <header class="section-head">
+        <div>
+          <p class="lab">Why it works this way</p>
+          <h2>Open, because a secret should stay here</h2>
+        </div>
+      </header>
+      <div class="split">
+        <article class="card">
+          <h3>What runs on your computer</h3>
+          <p>The checks are plain JavaScript, with tests. They work even when the model is off. Gemma 3 270M runs in a browser worker when WebGPU is available. The weights download once from Hugging Face and stay in this browser.</p>
+          <p class="alert">A closed API would need the folder uploaded before it could explain it. That folder may contain the secret.</p>
+        </article>
+        <article class="card">
+          <h3>What the small model may do</h3>
+          <p>Temperature stays at 0.6, because small models repeat themselves when it is higher. The prompt is a short list with secrets hidden, not the whole folder. If the reply repeats, you see the written summary instead.</p>
+          <p>There is no cross-origin isolation header. That header would speed a CPU backup and would also block the download. WebGPU is the fast path. SmolLM2 135M is the backup model for computers without WebGPU.</p>
+        </article>
+      </div>
+      <details class="acc" open>
+        <summary>Every check</summary>
+        <div class="acc-body flush">
+          <table>
+            <thead>
+              <tr><th>Severity</th><th>Kind</th><th>What it looks for</th></tr>
+            </thead>
+            <tbody id="rules"></tbody>
+          </table>
+        </div>
+      </details>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="w footer-row">
+    <p>Veladora. MIT for this repository. Gemma weights stay under the Gemma Terms of Use and are not stored in this repo. SmolLM2 is Apache-2.0.</p>
+    <p>The memory card uses a candle and marigolds to remember work and the people who did it. It is not a replacement for the tradition.</p>
+  </div>
+</footer>
+<noscript class="noscript">Veladora needs JavaScript. The scan still does not leave the browser.</noscript>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

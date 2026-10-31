@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: veladora
+    runtime: static
+    buildCommand: echo Veladora is a static site
+    staticPublishPath: .
